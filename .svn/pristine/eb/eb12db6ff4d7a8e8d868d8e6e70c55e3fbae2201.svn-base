@@ -1,0 +1,104 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@ page import="domotique.*, java.util.Collection, java.util.ArrayList" %>
+<jsp:useBean id="login" class="java.lang.String" scope="session" />
+<jsp:useBean id="zoneList" class="domotique.Zone" scope="session" />
+
+
+<%
+if (zoneList.getRoot() == false) {
+%>
+<div class="row">
+	  <div class="col-sm-6 col-md-4">
+	    <div class="thumbnail">
+	        <form action="Servlet" method="POST">
+	        <input type="hidden" name="op" value="back">
+	        <input type="hidden" name="ParentId" value="<%=zoneList.getParent().getId()%>">
+	         <button class="btn btn-default" type="submit">Back to <%= zoneList.getParent().getName() %></button>
+	        </form>
+	    </div>
+	  </div>
+	</div>
+<% } %>
+
+<div id="grid" class="row" style="margin: 5% 20% 5% 20%;">
+<div class="panel panel-primary">
+<div class="panel-heading"><%= zoneList.getName() %></div>
+<div class="row">
+
+<%
+Collection<Zone> zones = zoneList.getSubZones();
+int i = 0;
+if (zones != null){
+for (Zone z: zones) {
+	%>
+		<div class="col-sm-6 col-md-4">
+	    <div class="thumbnail">
+	      <div class="caption"><br>
+	        <h3><%=z.getName() %></h3>
+	        <form action="Servlet" method="POST">
+	        <input type="hidden" name="op" value="manageZone">
+	        <input type="hidden" name="zoneId" value="<%=z.getId()%>">
+	        <button class="btn btn-default" type="submit">Manage</button>
+	        </form>
+	        <br>
+	        <form action="Servlet" method="POST">
+	        <input type="hidden" name="op" value="deleteZone">
+	        <input type="hidden" name="zoneId" value="<%=z.getId()%>">
+	         <button class="btn btn-default" type="submit">Delete</button>
+	        </form>
+	      </div>
+	    </div>
+	    </div>
+
+<%}
+}
+%>
+
+	<div class="col-sm-6 col-md-4">
+		    <div class="thumbnail">
+		      <img src="images/home.png" alt="..." style="width: 100px; height: auto;">
+		      <div class="caption">
+		        <!-- <form action="Servlet" method="POST">
+		        <input type="hidden" name="op" value="createZone">
+		        <input type="hidden" name="zoneParent" value="<%= zoneList.getId() %>">
+		        <button class="btn btn-default" type="submit">Create Zone</button>
+		        
+		        </form>-->
+		        <button style="margin: auto;" type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+  Create zone
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Create zone</h4>
+      </div>
+      
+	      <div class="modal-body">
+	      <form action="Servlet" method="POST">
+		        <input type="hidden" name="op" value="createZone">
+		        <input type="hidden" name="zoneParent" value="<%= zoneList.getId() %>">
+		        <label>Zone name</label> : <input type="text" name="zoneName" required /><br />
+		        <label>Description</label> : <input type="text" name="description" /><br />
+		        <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->  
+		        <button class="btn btn-default" type="submit" style="display: none;" id="createZone">Create Zone</button>
+		        </form>  
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary" type="submit" onclick="document.getElementById('createZone').click()">Create Zone</button>
+	      </div>
+    </div>
+  </div>
+</div>
+		      </div>
+		    </div>
+		  </div>
+	</div>
+</div>
+</div>
+

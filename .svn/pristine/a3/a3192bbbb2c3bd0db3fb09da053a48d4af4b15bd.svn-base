@@ -1,0 +1,28 @@
+package domotique;
+
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+@Stateless
+public class ObjetFacade implements ObjetInterface {
+
+	@PersistenceContext
+	EntityManager bdd;
+	
+	public void newObjet(String name, String description, String loginOwner){
+		User userOwner = bdd.find(User.class, loginOwner);
+		Objet newObjet = new Objet(name, description, userOwner);
+		
+		bdd.persist(newObjet);
+		userOwner.getObjets().add(newObjet);
+	}
+	
+	public void addObjet(Objet objet) {
+		bdd.persist(objet);
+	}
+	
+	public void removeObjet(String nom) {
+		bdd.remove(bdd.find(Objet.class, nom));
+	}
+}

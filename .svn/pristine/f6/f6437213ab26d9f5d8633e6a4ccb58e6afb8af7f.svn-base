@@ -1,0 +1,121 @@
+package beans;
+
+import java.util.Collection;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
+/**
+ * 
+ * @author Gauthier Jolly
+ * Décrit une zone : entité d'organisation des objets connectés
+ */
+@Entity
+public class Zone {
+
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Id
+	private int id;
+	
+	@ManyToOne
+	private Zone parent;
+	@OneToOne
+	private User proprietaire;
+	@OneToMany(fetch = FetchType.EAGER, cascade=CascadeType.REMOVE, mappedBy="parent")
+	private List<Zone> subZone;
+	@OneToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+	private List<Objet> objets;
+	
+	
+	private String name;
+	private String description;
+	private boolean root;
+	
+	public Zone(){
+		root = true;
+		name = "Zone Principale";
+		description = "Ceci est votre zone principale";
+	}
+	
+	public Zone(String nom, String description) {
+		name = nom;
+		this.description = description;
+	}
+	
+	public void setProprietaire(User proprio) {
+		this.proprietaire = proprio;
+	}
+	
+	public User getProprietaire() {
+		return this.proprietaire;
+	}
+	
+	public void setRoot(boolean bool) {
+		root = bool;
+	}
+	
+	public boolean getRoot() {
+		return root;
+	}
+	
+	public int getId() {
+		return id;
+	}
+	
+	public Zone getParent() {
+		return parent;
+	}
+	
+	public void setIdParent(Zone zone) {
+		parent = zone;
+	}
+	
+	public String getName(){
+		return name;
+	}
+	
+	public void setName(String name){
+		this.name = name;
+	}
+	
+	public String getDescription(){
+		return description;
+	}
+	
+	public void setDescription(String description){
+		this.description = description;
+	}
+	
+	public void addSubZone(Zone zone){
+		subZone.add(zone);
+	}
+	
+	public void setSubZone(List<Zone> zones) {
+		this.subZone = zones;
+	}
+	
+	public List<Zone> getSubZones(){
+		return subZone;
+	}
+	
+	public void dellSubZone(Zone zone){
+		subZone.remove(zone);
+	}
+	
+	public Collection<Objet> getObjets() {
+		return objets;
+	}
+	
+	public void addObjet(Objet objet) {
+		objets.add(objet);
+	}
+	
+}

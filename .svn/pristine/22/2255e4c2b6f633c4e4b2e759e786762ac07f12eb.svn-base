@@ -1,0 +1,93 @@
+<jsp:useBean id="login" class="java.lang.String" scope="session"/>
+<div id="header" class="jumbotron" style="text-align: center;">
+		<h1>DOM-EZI</h1>
+		<p>La domotique sans aucune limite</p>
+		<p>
+			<%
+				if (login.equals("")) {
+			%>
+			<a class="btn btn-primary btn-lg" href="login.jsp" role="button">Login</a>
+			<a class="btn btn-primary btn-lg" href="signin.jsp" role="button">Sign
+				in</a>
+			<a class="btn btn-primary btn-lg" href="ServletUser?op=peupler" role="button">Peupler</a>
+			<%
+				} else {
+			%>
+			Bonjour <b><%=login%></b> <a class="btn btn-primary btn-lg"
+				href="Servlet?op=logout" role="button">Log out</a>
+			<%
+				}
+			%>
+		</p>
+</div>
+
+<div id="grid" class="row" style="margin: 5% 20% 5% 20%;">
+	<div class="col-sm-6 col-md-4">
+		<div class="thumbnail" style="margin: 0% 5% 10% 5%;">
+			<img src="domezi.jpeg" class="img-thumbnail" alt="...">
+			<div class="caption">
+				<h3>Thumbnail label</h3>
+				<p>Lorem ipsum dolor sit amet, brute verear gubergren vim ad,
+					qui iusto oportere et. Meis dicta sed ne, dicant graece phaedrum an
+					vis, mutat integre dolores eos in. In per impetus pericula, an nam
+					sumo brute placerat. Tempor melius tamquam te nam. Ut ius graece
+					maluisset.Omnium scaevola ea vix. Veniam ocurreret quaerendum no
+					mel, reque essent sed et. Ex eirmod aliquid consectetuer his, no
+					his mundi dicam aliquip. Eu pri esse nominati. Te corpora eligendi
+					vel, vix ad posse repudiare philosophia, laudem mentitum
+					suscipiantur cu duo. Apeirian adipisci quaerendum sit id, an eum
+					adhuc error tibique, et eos sumo aliquip.</p>
+				<p>
+					<a class="btn btn-default" href="#" role="button">View details
+						&raquo;</a>
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<a href="www.google.com"><div class="col-sm-6 col-md-4">
+		<div class="thumbnail" style="margin: 0% 5% 10% 5%;">
+			<img src="domezi.jpeg" class="img-rounded" alt="...">
+			<div class="caption">
+				<h3>Thumbnail label</h3>
+				<p>Lorem ipsum dolor sit amet, brute verear gubergren vim ad,
+					qui iusto oportere et. Meis dicta sed ne, dicant graece phaedrum an
+					vis, mutat integre dolores eos in. In per impetus pericula, an nam
+					sumo brute placerat. Tempor melius tamquam te nam. Ut ius graece
+					maluisset.Omnium scaevola ea vix. Veniam ocurreret quaerendum no
+					mel, reque essent sed et. Ex eirmod aliquid consectetuer his, no
+					his mundi dicam aliquip. Eu pri esse nominati. Te corpora eligendi
+					vel, vix ad posse repudiare philosophia, laudem mentitum
+					suscipiantur cu duo. Apeirian adipisci quaerendum sit id, an eum
+					adhuc error tibique, et eos sumo aliquip.</p>
+				<p>
+					<a class="btn btn-default" href="#" role="button">View details
+						&raquo;</a>
+				</p>
+			</div>
+		</div>
+	</div></a>
+
+	<div class="col-sm-6 col-md-4">
+		<div class="thumbnail" style="margin: 0% 5% 10% 5%;">
+			<img src="domezi.jpeg" class="img-circle" alt="...">
+			<div class="caption">
+				<h3>Thumbnail label</h3>
+				<p>Lorem ipsum dolor sit amet, brute verear gubergren vim ad,
+					qui iusto oportere et. Meis dicta sed ne, dicant graece phaedrum an
+					vis, mutat integre dolores eos in. In per impetus pericula, an nam
+					sumo brute placerat. Tempor melius tamquam te nam. Ut ius graece
+					maluisset.Omnium scaevola ea vix. Veniam ocurreret quaerendum no
+					mel, reque essent sed et. Ex eirmod aliquid consectetuer his, no
+					his mundi dicam aliquip. Eu pri esse nominati. Te corpora eligendi
+					vel, vix ad posse repudiare philosophia, laudem mentitum
+					suscipiantur cu duo. Apeirian adipisci quaerendum sit id, an eum
+					adhuc error tibique, et eos sumo aliquip.</p>
+				<p>
+					<a class="btn btn-default" href="#" role="button">View details
+						&raquo;</a>
+				</p>
+			</div>
+		</div>
+	</div>
+</div>

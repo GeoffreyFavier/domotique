@@ -1,0 +1,25 @@
+package facades;
+
+import javax.ejb.Local;
+
+import beans.Zone;
+
+@Local
+public interface ZoneInterface {
+	
+	public int addZone(String nom, String description);
+	
+	public void updateZone(Zone zone);
+	
+	public Zone findZone(int id);
+	
+	public void deleteZone(int id);
+	
+	public void associerZone(int idParent, int idEnfant);
+	
+	public void setZoneRoot(int id, boolean root);
+	
+	public void setZoneProprietaire(String user, int idZone);
+	
+	public void addObjet(int zoneId, int objetId);
+}

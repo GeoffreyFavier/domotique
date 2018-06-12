@@ -1,0 +1,18 @@
+package domotique;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+public class ObjetFacade implements ObjetInterface {
+
+	@PersistenceContext
+	EntityManager bdd;
+	
+	public void addObjet(Objet objet) {
+		bdd.persist(objet);
+	}
+	
+	public void removeObjet(String nom) {
+		bdd.remove(bdd.find(Objet.class, nom));
+	}
+}

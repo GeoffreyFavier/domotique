@@ -1,0 +1,48 @@
+package domotique;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
+
+@Entity
+public class Objet {
+	
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Id
+	private int id;
+	
+	private String nom;
+	private String description;
+	
+	@ManyToOne
+	private User owner;
+	
+	public Objet() {}
+	
+	public Objet(String nom, String description, User owner){
+		this.nom = nom;
+		this.description = description;
+		this.owner = owner;
+	}
+	
+	public void setDescription(String description){
+		this.description = description;
+	}
+	
+	public String getDescription(){
+		return description;
+	}
+	
+	public void setNom(String nom) {
+		this.nom = nom;
+	}
+	
+	public String getNom() {
+		return this.nom;
+	}
+	
+	
+}

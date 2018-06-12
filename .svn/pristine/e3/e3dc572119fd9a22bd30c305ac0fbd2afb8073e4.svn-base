@@ -1,0 +1,14 @@
+package domotique;
+
+import javax.ejb.Local;
+
+@Local
+public interface ObjetInterface {
+
+	public void newObjet(String name, String description, String loginOwner);
+	
+	public void addObjet(Objet objet);
+	
+	public void removeObjet(String nom);
+	
+}

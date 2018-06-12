@@ -1,0 +1,241 @@
+package controleurs;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.ejb.EJB;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import beans.User;
+import beans.Zone;
+import facades.ObjetInterface;
+import facades.UserInterface;
+import facades.ZoneInterface;
+import crypto.Hash;
+
+/**
+ * Servlet implementation class Servlet
+ * Sevlet principal de l'appli
+ */
+@WebServlet("/ServletUser")
+public class ServletUser extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+    
+	@EJB(name="UserFacade")
+	UserInterface userFacade;
+	@EJB(name="ZoneFacade")
+	ZoneInterface zoneFacade;
+	@EJB(name="ObjetFacade")
+	ObjetInterface objetFacade;
+	
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public ServletUser() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+    /**
+     * Charge le User dans la session
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    private void goToRedirection(HttpServletRequest request, HttpServletResponse response, String redirection) throws ServletException, IOException {
+    	//On récupère le login de l'utilisateur faisant la requète
+    	String login = (String)(request.getSession().getAttribute("login"));
+    	User user = userFacade.getUser(login);
+    	request.getSession().setAttribute("user", user);
+    	request.getRequestDispatcher(redirection).forward(request, response);
+    }
+    
+    /**
+     * Gère la phase d'inscription 
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    public void signIn(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	String name = request.getParameter("name");
+		String email = request.getParameter("email");
+		String login = request.getParameter("login");
+		String password = request.getParameter("password");
+		User user = new User(login, email, name, password);
+		userFacade.addUser(user);
+		goToRedirection(request, response, "index.jsp");
+    }
+    
+    /**
+     * Gère la phase de login
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    public void login(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	String login = request.getParameter("login");
+    	String password = request.getParameter("password");
+    	if (!password.equals("") && password != null) {
+    		password = Hash.sha265(password);
+    	}
+    	if (userFacade.login(login, password)){
+    		chargementDonneesUser(request, response);
+    	}
+    	else {
+    		request.setAttribute("retry", true);
+    		goToRedirection(request, response, "login.jsp");
+    		//request.getRequestDispatcher("login.jsp").forward(request, response);
+    	}
+    }
+    
+    /**
+     * Met les données user dans les variables sessions
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    private void chargementDonneesUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	
+    	// Récupération des données utilisateurs
+    	String login = request.getParameter("login");
+    	
+    	//Chargements des données dans la sessions
+    	request.getSession().setAttribute("login", login);
+		request.getSession().setAttribute("homeType", "home");
+		request.getSession().setAttribute("admin", userFacade.isAdmin(login));
+		
+		int idZonePrincipaleUser = userFacade.zonesUser(login);
+		Zone zonePrincipaleUser = zoneFacade.findZone(idZonePrincipaleUser);
+		request.getSession().setAttribute("zoneList", zonePrincipaleUser);
+		goToRedirection(request, response, "index.jsp");
+		//request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    /**
+     * Transmet la liste des utilisateurs à userList.jsp et forward si l'utilisateur est un admin. Si il ne l'est pas : forward sur index.jsp
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    public void userList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	boolean permission = userFacade.isAdmin((String)(request.getSession().getAttribute("login")));
+    	if (permission){
+    		List<User> userList = userFacade.getUserList();
+    		request.setAttribute("userList", userList);
+    		goToRedirection(request, response, "userList.jsp");
+    		//request.getRequestDispatcher("userList.jsp").forward(request, response);
+    	} else
+    		goToRedirection(request, response, "index.jsp");
+    		//request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    /**
+     * Permet de peupler rapidement la base de donnée, a supprimer avant déployement final
+     */
+    public void peupler(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	User admin = new User("gjolly", "gauthier.jolly@gmail.com", "Gauthier","test");    	
+    	admin.setAdmin(true);
+    	userFacade.addUser(admin);
+    	int idZone = zoneFacade.addZone("Zone principale", "description");
+    	zoneFacade.setZoneRoot(idZone, true);
+    	zoneFacade.setZoneProprietaire(admin.getLogin(), idZone);
+    	int zone1 = zoneFacade.addZone("zone1", "zone1");
+    	zoneFacade.associerZone(idZone, zone1);
+    	admin = userFacade.getUser("gjolly");
+    	
+    	objetFacade.newObjet("obj 1", "desc", admin.getLogin(), idZone);
+    	int id2 = objetFacade.newObjet("nom 2", "dede", admin.getLogin(), idZone);
+    	//zoneFacade.addObjet(idZone, objet.getId());
+    	zoneFacade.addObjet(idZone, id2);
+    	objetFacade.addZone(idZone, id2);
+    	userFacade.addUser(new User("Raskolnikov", "gauthier.jolly@gmail.com", "Gauthier","test"));
+    	userFacade.addUser(new User("Razumikhin", "gauthier.jolly@gmail.com", "Gauthier","test"));
+    	User andre = new User("Andre", "gauthier.jolly@gmail.com", "Gauthier","test");
+    	userFacade.addUser(andre);
+    	userFacade.addUser(new User("Peter", "gauthier.jolly@gmail.com", "Gauthier","test"));
+    	User youss = new User("youss", "youss@fff", "Youss", "test");
+    	youss.setAdmin(true);
+    	userFacade.addUser(youss);
+    	goToRedirection(request, response, "index.jsp");
+    	//request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    /**
+     * Transmets l'objet utilisateur associé au login à la page account.jsp et forward
+     */
+    public void account(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		goToRedirection(request, response, "account.jsp");
+    	//request.getRequestDispatcher("account.jsp").forward(request, response);
+    }
+    
+    public void changeInfo(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	String login = (String)(request.getSession().getAttribute("login"));
+    	User user = userFacade.getUser(login);
+    	String name = request.getParameter("name");
+		String email = request.getParameter("email");
+		user.setEmail(email);
+		user.setName(name);
+		
+		userFacade.update(user);
+		goToRedirection(request, response, "index.jsp");
+		//request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doPost(request, response);
+	}
+
+	/**
+	 * Lorsqu'une page veut envoyer une requète au servelet, elle doit spécifier quelle est sa requète avec le paramètre "op"
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String operation = request.getParameter("op");
+		
+		//Selon les différentes valeurs de op, on effectue un traitement particulier
+		switch(operation){
+		case "signin":
+			signIn(request, response);
+		break;
+		case "login":
+			login(request, response);
+		break;
+		case "logout":
+			request.getSession().invalidate();
+			request.getRequestDispatcher("index.jsp").forward(request, response);
+		break;
+		case "userList":
+			userList(request, response);
+		break;
+		case "peupler":
+			peupler(request, response);
+		break;
+		case "deleteUser":
+			String loginToDelete = (String)(request.getParameter("log"));
+			userFacade.deleteUser(loginToDelete);
+			userList(request, response);
+		break;
+		case "account":
+			account(request, response);
+		break;
+		case "changeInfo":
+			changeInfo(request, response);
+		break;
+		default:
+			request.getRequestDispatcher("index.jsp").forward(request, response);
+		break;
+		}
+	}
+
+}

@@ -1,0 +1,219 @@
+package controleurs;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Collection;
+import java.util.List;
+
+import javax.ejb.EJB;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+
+import beans.Objet;
+import beans.User;
+import beans.Zone;
+import facades.ObjetInterface;
+import facades.UserInterface;
+import facades.ZoneInterface;
+import tests.ObjectManager;
+
+/**
+ * Servlet implementation class servletGestion
+ * Controleur sur les zones
+ */
+@WebServlet("/ServletGestion")
+@MultipartConfig
+public class ServletGestion extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public ServletGestion() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+    
+    @EJB(name="UserFacade")
+    UserInterface userFacade;
+    
+    @EJB(name="ObjetFacade")
+    ObjetInterface objetFacade;
+    
+    @EJB(name="ZoneFacade")
+    ZoneInterface zoneFacade;
+    private void goToRedirection(HttpServletRequest request, HttpServletResponse response, String redirection) throws ServletException, IOException {
+    	//On récupère le login de l'utilisateur faisant la requète
+    	String login = (String)(request.getSession().getAttribute("login"));
+    	User user = userFacade.getUser(login);
+    	request.getSession().setAttribute("user", user);
+    	request.getRequestDispatcher(redirection).forward(request, response);
+    }
+    
+    private void addObject(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	String login = (String)(request.getSession().getAttribute("login"));
+    	User user = userFacade.getUser(login);
+    	int objectId = Integer.parseInt(request.getParameter("objet"));
+    	Objet objectToLink = user.getObjet(objectId);
+    	int zoneId = Integer.parseInt(request.getParameter("zone"));
+    	Zone zone = zoneFacade.findZone(zoneId);
+    	zone.addObjet(objectToLink);
+    	goToRedirection(request, response, "gestion.jsp");
+    }
+    
+    private void findUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	String userToFind = (String)request.getParameter("userToFind"); 
+    	List<User> usersFind = userFacade.findUserLike(userToFind);
+    	if (usersFind != null)
+  			request.setAttribute("usersFind", usersFind);
+		goToRedirection(request, response, "finduser.jsp");
+  		//request.getRequestDispatcher("finduser.jsp").forward(request, response);
+    }
+    
+    private void importClassFile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	final String path = "/tmp";
+    	final Part filePart = request.getPart("classFile");
+
+    	String name = (String)(request.getParameter("nameObject"));
+    	String fileName = name + ".class";
+    	OutputStream out = new FileOutputStream(new File(path + File.separator + fileName));
+    	InputStream fileContent = filePart.getInputStream();
+    	
+    	int read = 0;
+    	byte[] bytes = new byte[1024];
+    	
+    	while((read = fileContent.read(bytes)) != -1){
+    		out.write(bytes, 0, read);
+    	}
+    	out.close();
+    }
+    
+    private void newObject(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	//On commence par importer le fichier .class correspondant à l'objet dans le répertoire /tmp
+    	importClassFile(request, response);
+    	
+    	//On récupère le login de l'utilisateur faisant la requète
+    	String login = (String)(request.getSession().getAttribute("login"));
+    	
+    	//Création du xml
+    	String name = (String)(request.getParameter("objectName"));
+    	String description = (String)(request.getParameter("objectDescription"));
+    	String fileName = name + ".class";
+    	ObjectManager objectManager = new ObjectManager("/tmp/" + fileName);
+    	objectManager.findMethods();
+    	try {
+    		objectManager.createXML();
+    	} catch(Throwable e){}
+    	
+    	//Récupération de la zone principale de l'utilisateur
+    	int zoneId = userFacade.zonesUser(login);
+    	
+    	objetFacade.newObjet(name, description, login, zoneId);
+    	goToRedirection(request, response, "index.jsp");
+    	//request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    public void manageZone(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	int id = Integer.parseInt(request.getParameter("zoneId"));
+    	Zone zone = zoneFacade.findZone(id);
+    	request.getSession().setAttribute("zoneList", zone);
+    	goToRedirection(request, response, "index.jsp");
+    	//request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    public void deleteZone(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	int id = Integer.parseInt(request.getParameter("zoneId"));
+    	Zone zone = zoneFacade.findZone(id);
+    	zoneFacade.deleteZone(id);
+    	Zone zoneParent = zoneFacade.findZone(zone.getParent().getId());
+    	request.getSession().setAttribute("zoneList", zoneParent);
+    	goToRedirection(request, response, "index.jsp");
+    	//request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+
+    public void createZone(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	int id = Integer.parseInt(request.getParameter("zoneParent"));
+    	String zoneName = request.getParameter("zoneName");
+    	if(!zoneName.equals("")) {
+	    	int idfils = zoneFacade.addZone(zoneName, request.getParameter("description"));
+	    	zoneFacade.associerZone(id, idfils);
+	    	Zone zoneMere = zoneFacade.findZone(id);
+	    	request.getSession().setAttribute("zoneList", zoneMere);
+	    	request.getSession().setAttribute("addSucces", 1);
+    	}
+    	goToRedirection(request, response, "index.jsp");
+    	//request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    public void backZone(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	int id = Integer.parseInt(request.getParameter("ParentId"));
+    	Zone zoneParent = zoneFacade.findZone(id);
+    	request.getSession().setAttribute("zoneList", zoneParent);
+    	goToRedirection(request, response, "index.jsp");
+    	//request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    public void gestionZone(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	request.getSession().setAttribute("homeType", "manage");
+		goToRedirection(request, response, "index.jsp");
+    	//request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    public void goHome(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	request.getSession().setAttribute("homeType", "home");
+    	goToRedirection(request, response, "index.jsp");
+    	//request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doPost(request, response);
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String operation = (String)request.getParameter("op");
+		switch (operation){
+		case "addObject":
+			addObject(request, response);
+			break;
+		case "findUser":
+			findUser(request, response);
+		break;
+		case "newObject":
+			newObject(request, response);
+		break;
+		case "manageZone":
+			manageZone(request, response);
+		break;
+		case "deleteZone":
+			deleteZone(request, response);
+		break;
+		case "createZone":
+			createZone(request, response);
+		break;
+		case "back":
+			backZone(request, response);
+		break;
+		case "gestion":
+			gestionZone(request, response);
+		break;
+		case "home":
+			goHome(request, response);
+		break;
+		}
+	}
+
+}

@@ -1,0 +1,21 @@
+<html> 
+
+<head><title>Ajouter un objet </title></head>
+<body> 
+<h1> Ajouter un objet </h1>
+<form method="post"  action="---"> 
+<p>Nom : <input type="text" name= "name"></p>            
+<p>Identifiant : <input type="text" name= "id"></p>            
+<P> Commentaire (facultatif) :
+<P>
+<textarea name="textarea" rows="10" cols="50">
+</textarea>
+
+<p>
+<input type="submit" name="---" value="Annuler">
+<input type="submit" name="---" value="Ok">
+</p> 
+
+</form> 
+</body>      
+</html> 

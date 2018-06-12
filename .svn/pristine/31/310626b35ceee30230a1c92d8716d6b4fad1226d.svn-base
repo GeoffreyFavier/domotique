@@ -1,0 +1,12 @@
+package domotique;
+
+import javax.ejb.Stateless;
+
+@Stateless
+public interface ObjetInterface {
+
+	public void addObjet(Objet objet);
+	
+	public void removeObjet(String nom);
+	
+}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CahierDesChargeProjet</title>
+<link rel="stylesheet" href="https://stackedit.io/res-min/themes/base.css" />
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body><div class="container"><h1 id="cahier-des-charges-du-projet-domotique"><strong>Cahier des charges du projet “domotique”</strong></h1>
+
+<p><div class="toc">
+<ul>
+<li><a href="#cahier-des-charges-du-projet-domotique">Cahier des charges du projet “domotique”</a><ul>
+<li><a href="#description-générale">Description générale</a></li>
+<li><a href="#vocabulaire">Vocabulaire</a></li>
+<li><a href="#les-utilisateurs">Les utilisateurs</a></li>
+<li><a href="#architecture-dadministration">Architecture d’administration</a></li>
+<li><a href="#droit-dadministration-des-entités">Droit d’administration des entités</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</p>
+
+<h2 id="description-générale">Description générale</h2>
+
+<p>Le but du projet est de développer une application web permettant à des utilisateurs de gérer des équipements domotiques. </p>
+
+
+
+<h2 id="vocabulaire">Vocabulaire</h2>
+
+<p><strong>Entité</strong> : Tout élément administrable de l’application (Maison, Pièce, Objet). <br>
+<strong>Gestion d’un objet</strong> : Toute action pouvant être réalisée sur un objet connecté (typiquement allumer/éteindre). <br>
+<strong>Administration d’une entité</strong> : suppression ou ajout d’une entité.</p>
+
+<h2 id="les-utilisateurs">Les utilisateurs</h2>
+
+<p>Un utilisateur se connecte à l’application via un nom d’utilisateur et un mot de passe. Chaque utilisateur peut gérer les objets connectés. </p>
+
+
+
+<h2 id="architecture-dadministration">Architecture d’administration</h2>
+
+<p>L’administration de la domotique se fait selon arborescence suivante : un utilisateur peut avoir accès a plusieurs maisons administrables, chaque maison contient des pièces, chaque pièce contient des objets a gérer.  <br>
+La suppression d’une entité entraîne la suppression de toutes les entité de niveau inférieur qui lui sont rattaché (exemple : la suppression d’une maison supprime toutes les pièces qu’elle contient) <br>
+On peut aussi changer une entité de place : une certaine pièce peut être changée de maison (utile en cas de déménagement).</p>
+
+<h2 id="droit-dadministration-des-entités">Droit d’administration des entités</h2>
+
+<p>Un système de droits est mis en place. Il se compose de trois droits, donnés ici dans l’ordre décroissant : </p>
+
+<ul>
+<li>Droit d’<strong>Administration</strong> : permet de supprimer, d’ajouter et de gérer des entités.</li>
+<li>Droit de <strong>Gestion</strong> : permet uniquement de gérer les objet qui dépende d’une entité.</li>
+<li>Droit de <strong>Lecture</strong> : permet seulement de voir l’état des entités.</li>
+</ul>
+
+<p>Un utilisateur peut créer autant de maisons/pièces/objets qu’il le souhaite. Sur ces entités qu’il a créées, <strong>il a un droit d’Administration</strong>. <br>
+Un utilisateur ayant créé une entité peut choisir de donner certains droits à d’autres utilisateurs. <br>
+Un droit est attribué a une entité et s’applique récursivement aux entités qui y sont rattachées (au moins par défaut).</p></div></body>
+</html>

@@ -1,0 +1,25 @@
+package domotique;
+
+import java.util.List;
+
+import javax.ejb.Local;
+
+@Local
+public interface UserInterface {
+	
+	public void addUser(User user);
+	
+	public User getUser(String login);
+	
+	public List<User> getUserList();
+	
+	public boolean isAdmin(String login);
+	
+	public void update(User user);
+	
+	public void deleteUser(String login);
+	
+	public boolean login(String login, String password);
+	
+	public Zone zonesUser(String login);
+}

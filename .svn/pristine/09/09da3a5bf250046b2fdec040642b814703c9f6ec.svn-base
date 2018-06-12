@@ -1,0 +1,47 @@
+
+#STORIES 
+
+- Modifier les informations perso de l'utilisateur
+- Admin-> Supprimer un utilisateur
+- Ajouter des objets connectés
+- Ajouter une zone
+- Donner un droit à un user sur un objet
+- Trouver un autre user
+- Supprimer une maison
+- Ajouter une maison
+- Avoir un accès rapide aux objets fréquemment utilisés
+- Supprimer un objet connecté
+- Changer une zone de maison
+- Modifier les informations relatives à une maison
+- Admin -> Ajout de références produit raspberry
+
+
+#EPIC
+
+- Planification (Automatisation) de Tâches
+- Administrer la plateforme
+- Interagir avec les objets
+- Gérer les zones d'une maison
+- Etablir un système de droit sur les entités
+
+#TACHES ASSOCIEES AUX STORIES
+
+- Créer interface de modification informations utilisateur
+- Créer le code code de l'interface de modification info utilisateur
+- Créer interface suppression utilisateurs
+- Créer le code code de l'interface de suppression d'un utilisateur
+- Créer l'interface d'ajout d'un objet connecté
+- Créer le code code de l'interface d'ajout/modification/suppression d'un objet connecté
+- Créer l'interface d'ajout/modification/suppression d'une zone
+- Créer le code code de l'interface d'ajout d'une zone
+- Créer l'interface de droit d'un user sur un objet de de déléguation
+- Créer le code code de l'interface l'interface de droit d'un user sur un objet de de déléguation 
+- Créer l'interface de recherche d'un utilisateur
+- Créer le code code de l'interface de recherche d'un utilisateur
+- Créer l'interface d'ajout/suppression/modification d'une maison
+- Créer le code code de l'interface d'ajout/suppression/modification d'une maison
+- Créer l'interface des objets favoris
+- Créer le code code de l'interface des objets favoris
+- Créer l'interface d'ajout de référence produit
+- Créer le code code de l'interface d'ajout de référence produit
+- Créer BDD pour utilisateurs/administrateurs

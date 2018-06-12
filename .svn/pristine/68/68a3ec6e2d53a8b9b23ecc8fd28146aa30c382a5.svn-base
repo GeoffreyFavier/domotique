@@ -1,0 +1,18 @@
+package domotique;
+
+import javax.ejb.Singleton;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+@Singleton
+public class ZoneTable {
+	@PersistenceContext
+	EntityManager bdd;
+	
+	public void addZone(Zone zone){
+		bdd.persist(zone);
+	}
+	public void updateZone(Zone zone){
+		bdd.merge(zone);
+	}
+}

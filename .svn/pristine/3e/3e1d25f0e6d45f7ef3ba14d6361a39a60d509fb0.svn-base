@@ -1,0 +1,71 @@
+package domotique;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+/**
+ * 
+ * @author Gauthier Jolly
+ * Décrit un utilisateur inscrit sur l'application
+ */
+@Entity
+public class User {
+	
+	@Id
+	private String login;
+	
+	private String name;
+	private String email;
+	private String password;
+	private boolean admin;
+	
+	/**
+	 * Zone (unique) propre a l'utilisateur. Cette zone contiendra toutes les zones que l'utilisateur créera par la suite
+	 * (évite d'avoir a recoder les méthodes de Zone dans User)
+	 */
+	@OneToOne(fetch = FetchType.EAGER)
+	private Zone zones;
+	
+	public User(){}
+	
+	public User(String login, String email, String name, String password){
+		this.login = login;
+		this.name = name;
+		this.email = email;
+		this.password = password;
+		this.admin = false;
+	}
+	
+	public void setAdmin(boolean admin){
+		this.admin = admin;
+	}
+	public boolean getAdmin(){
+		return admin;
+	}
+	public String getPassword(){
+		return password;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getLogin() {
+		return login;
+	}
+	public void setLogin(String login) {
+		this.login = login;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	
+	public String toString(){
+		return login;
+	}
+}

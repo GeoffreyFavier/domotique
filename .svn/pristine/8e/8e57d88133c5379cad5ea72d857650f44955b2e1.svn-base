@@ -1,0 +1,16 @@
+package facades;
+
+import javax.ejb.Local;
+
+import beans.Objet;
+
+@Local
+public interface ObjetInterface {
+
+	public void newObjet(String name, String description, String loginOwner, int zoneId);
+	
+	public void addObjet(Objet objet);
+	
+	public void removeObjet(String nom);
+	
+}

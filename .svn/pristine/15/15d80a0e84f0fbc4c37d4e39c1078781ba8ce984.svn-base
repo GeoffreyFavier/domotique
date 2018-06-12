@@ -1,0 +1,55 @@
+package domotique;
+
+import java.util.Collection;
+import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+/**
+ * 
+ * @author Gauthier Jolly
+ * Décrit une zone : entité d'organisation des objets connectés
+ */
+@Entity
+public class Zone {
+
+	@GeneratedValue
+	@Id
+	private Integer id;
+	
+	private String name;
+	
+	/**
+	 * Sous entitées dépendants de cette zone (ie autre zones ou objets)
+	 */
+	@OneToMany(fetch=FetchType.EAGER)
+	private List<Zone> subZone;
+	
+	private String description;
+	
+	public String getName(){
+		return name;
+	}
+	public void setName(String name){
+		this.name = name;
+	}
+	public String getDescription(){
+		return description;
+	}
+	public void setDescription(String description){
+		this.description = description;
+	}
+	
+	public void addSubZone(Zone zone){
+		subZone.add(zone);
+	}
+	public Collection<Zone> listSubZone(){
+		return subZone;
+	}
+	public void dellSubZone(Zone zone){
+		subZone.remove(zone);
+	}
+}

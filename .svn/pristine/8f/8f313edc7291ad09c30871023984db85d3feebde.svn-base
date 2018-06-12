@@ -1,0 +1,20 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Import a new object</title>
+</head>
+<body>
+	<form action="ServletGestion" method="POST" enctype="multipart/form-data">
+		<input type="hidden" name="op" value="newObject">
+		<ul>
+			<li>Name : <input name="objectName" type="text"></li>
+			<li>Description : <input name="objectDescription" type="text"></li>
+			<li>.class file : <input name="classFile" type="file"></li>
+			<li><input type="submit" value="Ok"></li>
+		</ul>
+	</form>
+</body>
+</html>

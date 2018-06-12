@@ -1,0 +1,176 @@
+package domotique;
+
+import java.util.ArrayList;
+import java.lang.reflect.*;	// pour l'introspection
+
+// pour xml :
+import javax.xml.parsers.*; // DocumentBuilderFactory, DocumentBuilder
+import org.w3c.dom.*;       // Document
+import javax.xml.transform.*;   // Transformer, TransformerFactory
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
+
+
+/*
+	TODO :
+		ÉCRIRE LA DTD
+		Convertir en classe abstraite
+*/
+
+public class ObjectManager{
+
+	// Attributes
+	private String className;
+	private Method[] methods;
+
+	// Constructor
+	public ObjectManager(String fileName){
+		this.className = fileName.substring(0, fileName.indexOf("."));
+
+	}
+
+	/** introspects the .class of the object and stores its declared methods
+	 *  in the methods attribute
+	 */
+	public void findMethods(){
+		Class object = null;
+		try {	// ne compile pas sans le try / catch
+			object = Class.forName(className);
+			Method[] m = object.getDeclaredMethods();
+			this.setMethods(m);
+		} catch (ClassNotFoundException e){
+			System.out.println("" + className + " not found");
+		}
+	}
+
+	/** getter - object name
+	 */
+	public String getClassName(){
+		return this.className;
+	}
+	
+	/** getter - foud methods
+	 */
+	public ArrayList<Method> getMethods(){
+		ArrayList<Method> list = new ArrayList<Method>();
+		for (Method i : this.methods){
+			list.add(i);
+		}
+		return list;
+	}
+
+	/** sets the method attribute. Can't be used by another class
+	 */
+	private void setMethods(Method[] m){
+		this.methods = m;
+	}
+
+	/** removes the methods that we dont know and that will not be used on
+	 *  the website (ex : private methods)
+	 */
+	public void removeUselessMethods(){
+		// TODO
+		}
+
+	/** creates the XML : writes found methods and their parameters
+	 */
+	public void createXML(){
+		if (getMethods().length != 0){	// don't create the .xml if no methods
+			
+			// Creation of a new DOM document
+			DocumentBuilderFactory fabrique = DocumentBuilderFactory.newInstance();
+			DocumentBuilder constructor = fabrique.newDocumentBuilder();
+			Document document = constructor.newDocument();
+			document.setXmlStandalone(true);
+			Element root = document.createElement("root");	// ROOT
+
+			// Adding methods + parameters :
+			Boolean statePresent = false;	// bc several methods about State but only 1 in the xml
+			Boolean valuePresent = false;
+			Boolean colorPresent = false;
+			for(Method m : this.getMethods(){
+				String methodName = m.toString();
+				String stringToWrite = "";
+				if (methodName.contains("State") && !statePresent){
+					// stringToWrite += paramètres utilisés par State (genre State : ON/OFF) 
+					statePresent = true;
+				} else if (methodName.contains("Value") && !valuePresent){				
+					valuePresent = true;
+				} else if (methodName.contains("Color") && !colorPresent){
+
+					colorPresent = true;				
+				}
+				// 1. Créer un fils = la methode
+				Element e = document.createElement(m.toString()); // child name = method name
+
+				
+				// 2. Selon le type de la méthode, y mettre les paramètres + leurs valeurs
+				// ex : méthode toggle() => attribut on/off
+					
+
+				root.appendChild(e);	// on rattache le fils à la racine			
+			}
+	
+		document.appendChild(root);	// root est la racine
+		// Créer le .xml et y écrire le contenu
+		}
+	}
+
+	public static void main(String[] args){
+		ObjectManager o = new ObjectManager("ObjectTest.java");
+		o.findMethods();	
+	
+		// found methods
+		System.out.println("Methods : ");
+		for (Method m : o.getMethods()){
+			System.out.println("\t" + m.toString());
+		}
+	}
+
+/** Exemple de création (issu du cours)
+
+public class ExempleCreationXML {
+
+	public static void main(String[] args) throws Exception {
+		// Création d’un nouveau document DOM
+		DocumentBuilderFactory fabrique = DocumentBuilderFactory.newInstance();
+		DocumentBuilder constructeur = fabrique.newDocumentBuilder();
+		Document document = constructeur.newDocument();
+		document.setXmlStandalone(true);
+
+		// Construire quelques éléments
+		Element racine = document.createElement("racine");
+		// OSEF racine.appendChild(document.createComment("un exemple"));
+		Element e1 = document.createElement("fils");
+		racine.appendChild(e1);
+		Text texte = document.createTextNode("le contenu");
+		e1.appendChild(texte);
+
+		// Définir des attributs
+		NamedNodeMap attributes = e1.getAttributes();
+		Attr a = document.createAttribute("taille");
+		a.setValue("10");
+		attributes.setNamedItem(a);
+
+		Attr x = document.createAttribute("x");
+		x.setValue("A SIGNE_INFERIEUR B");    // SIGNE_INFERIEUR est spécial en XML !
+		racine.getAttributes().setNamedItem(x);
+		// Définir la racine de document
+		document.appendChild(racine);
+		// Obtenir le document dans une String
+		DOMSource domSource = new DOMSource(document);
+		StringWriter writer = new StringWriter();
+		StreamResult result = new StreamResult(writer);
+		TransformerFactory tf = TransformerFactory.newInstance();
+		Transformer transformer = tf.newTransformer();
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+		transformer.transform(domSource, result);
+
+		System.out.println(writer.toString());
+	}
+}
+*/
+}	
+

@@ -1,0 +1,243 @@
+package domotique;
+
+import domotique.Crypto;
+import java.io.IOException;
+import java.util.List;
+
+import javax.ejb.EJB;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Servlet implementation class Servlet
+ * Sevlet principal de l'appli
+ */
+@WebServlet("/Servlet")
+public class Servlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+    
+	@EJB(name="UserFacade")
+	UserInterface userFacade;
+	@EJB(name="ZoneFacade")
+	ZoneInterface zoneFacade;
+	
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public Servlet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+    /**
+     * Gère la phase d'inscription 
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    public void signIn(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	String name = request.getParameter("name");
+		String email = request.getParameter("email");
+		String login = request.getParameter("login");
+		String password = request.getParameter("password");
+		User user = new User(login, email, name, password);
+		userFacade.addUser(user);
+		
+		request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    /**
+     * Gère la phase de login
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    public void login(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	String login = request.getParameter("login");
+    	String password = request.getParameter("password");
+    	if (!password.equals("") && password != null) {
+    		password = Crypto.sha265(password);
+    	}
+    	if (userFacade.login(login, password)){
+    		request.getSession().setAttribute("login", login);
+    		request.getSession().setAttribute("homeType", "home");
+    		request.getSession().setAttribute("admin", userFacade.isAdmin(login));
+    		request.getSession().setAttribute("zoneList", userFacade.zonesUser(login));
+    		request.getRequestDispatcher("index.jsp").forward(request, response);
+    	}
+    	else {
+    		request.setAttribute("retry", true);
+    		request.getRequestDispatcher("login.jsp").forward(request, response);
+    	}
+    }
+    
+    /**
+     * Transmet la liste des utilisateurs à userList.jsp et forward si l'utilisateur est un admin. Si il ne l'est pas : forward sur index.jsp
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    public void userList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	boolean permission = userFacade.isAdmin((String)(request.getSession().getAttribute("login")));
+    	if (permission){
+    		List<User> userList = userFacade.getUserList();
+    		request.setAttribute("userList", userList);
+    		request.getRequestDispatcher("userList.jsp").forward(request, response);
+    	} else
+    		request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    /**
+     * Permet de peupler rapidement la base de donnée, a supprimer avant déployement final
+     */
+    public void peupler(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	User admin = new User("gjolly", "gauthier.jolly@gmail.com", "Gauthier","test");    	
+    	admin.setAdmin(true);
+    	userFacade.addUser(admin);
+    	int idZone = zoneFacade.addZone("Zone principale", "description");
+    	zoneFacade.setZoneRoot(idZone, true);
+    	zoneFacade.setZoneProprietaire(admin.getLogin(), idZone);
+    	int zone1 = zoneFacade.addZone("zone1", "zone1");
+    	zoneFacade.associerZone(idZone, zone1);
+    	
+    	userFacade.addUser(new User("Raskolnikov", "gauthier.jolly@gmail.com", "Gauthier","test"));
+    	userFacade.addUser(new User("Razumikhin", "gauthier.jolly@gmail.com", "Gauthier","test"));
+    	User andre = new User("Andre", "gauthier.jolly@gmail.com", "Gauthier","test");
+    	userFacade.addUser(andre);
+    	userFacade.addUser(new User("Peter", "gauthier.jolly@gmail.com", "Gauthier","test"));
+    	User youss = new User("youss", "youss@fff", "Youss", "test");
+    	youss.setAdmin(true);
+    	userFacade.addUser(youss);
+    	
+    	request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    /**
+     * Transmets l'objet utilisateur associé au login à la page account.jsp et forward
+     */
+    public void account(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	String login = (String)(request.getSession().getAttribute("login"));
+    	User user = userFacade.getUser(login);
+    	request.setAttribute("user", user);
+    	request.getRequestDispatcher("account.jsp").forward(request, response);
+    }
+    
+    public void changeInfo(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	String login = (String)(request.getSession().getAttribute("login"));
+    	User user = userFacade.getUser(login);
+    	String name = request.getParameter("name");
+		String email = request.getParameter("email");
+		user.setEmail(email);
+		user.setName(name);
+		
+		userFacade.update(user);
+		
+		request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    
+    public void manageZone(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	int id = Integer.parseInt(request.getParameter("zoneId"));
+    	Zone zone = zoneFacade.findZone(id);
+    	request.getSession().setAttribute("zoneList", zone);
+    	request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    public void createZone(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	int id = Integer.parseInt(request.getParameter("zoneParent"));
+    	String zoneName = request.getParameter("zoneName");
+    	if(!zoneName.equals("")) {
+	    	int idfils = zoneFacade.addZone(zoneName, request.getParameter("description"));
+	    	zoneFacade.associerZone(id, idfils);
+	    	Zone zoneMere = zoneFacade.findZone(id);
+	    	request.getSession().setAttribute("zoneList", zoneMere);
+	    	request.getSession().setAttribute("addSucces", 1);
+    	}
+    	request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    public void backZone(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	int id = Integer.parseInt(request.getParameter("ParentId"));
+    	Zone zoneParent = zoneFacade.findZone(id);
+    	request.getSession().setAttribute("zoneList", zoneParent);
+    	request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    public void deleteZone(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	int id = Integer.parseInt(request.getParameter("zoneId"));
+    	Zone zone = zoneFacade.findZone(id);
+    	zoneFacade.deleteZone(id);
+    	Zone zoneParent = zoneFacade.findZone(zone.getParent().getId());
+    	request.getSession().setAttribute("zoneList", zoneParent);
+    	request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    public void gestionZone(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	request.getSession().setAttribute("homeType", "manage");
+    	request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+    public void goHome(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	request.getSession().setAttribute("homeType", "home");
+    	request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doPost(request, response);
+	}
+
+	/**
+	 * Lorsqu'une page veut envoyer une requète au servelet, elle doit spécifier quelle est sa requète avec le paramètre "op"
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String operation = request.getParameter("op");
+		
+		//Selon les différentes valeurs de op, on effectue un traitement particulier
+		if (operation.equals("signin"))
+			signIn(request, response);
+		else if (operation.equals("login"))
+			login(request, response);
+		else if (operation.equals("logout")) {
+			request.getSession().invalidate();
+			request.getRequestDispatcher("index.jsp").forward(request, response);
+		} else if (operation.equals("userList")) {
+			userList(request, response);
+		} else if (operation.equals("peupler")) {
+			peupler(request, response);
+		} else if (operation.equals("deleteUser")) {
+			String loginToDelete = (String)(request.getParameter("log"));
+			userFacade.deleteUser(loginToDelete);
+			userList(request, response);
+		} else if (operation.equals("Account")){ 
+			account(request, response);
+		} else if (operation.equals("changeInfo")){
+			changeInfo(request, response);
+		} else if (operation.equals("manageZone")){
+			manageZone(request, response);
+		} else if (operation.equals("deleteZone")) {
+			deleteZone(request, response);
+		} else if (operation.equals("createZone")){
+			createZone(request, response);
+		} else if (operation.equals("back")) {
+			backZone(request, response);
+		} else if (operation.equals("gestion")) {
+			gestionZone(request, response);
+		} else if (operation.equals("home")) {
+			goHome(request, response);
+		}
+		else {
+			request.getRequestDispatcher("index.jsp").forward(request, response);
+		}
+	}
+
+}

@@ -1,0 +1,39 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@ page import="beans.*, java.util.Collection" %>
+    
+<jsp:useBean id="login" class="java.lang.String" scope="session"/>
+<jsp:useBean id="zoneList" class="beans.Zone" scope="session"/>
+<jsp:useBean id="objetList" class="beans.Objet" scope="session"/>
+<!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+<div id="grid" class="row" style="margin: 5% 20% 5% 20%;">
+<div class="panel panel-primary">
+<div class="panel-heading"><%= zoneList.getName() %></div>
+<div class="row">
+
+<%
+Collection<Objet> objets = (Collection<Objet>)(request.getAttribute("objets"));
+if (objets != null){
+for (Objet iObjet: objets) {
+	%>
+		<div class="col-sm-6 col-md-4">
+	    <div class="thumbnail">
+	      <div class="caption"><br>
+	        <h3><%=iObjet.getNom() %></h3>
+	      </div>
+	    </div>
+	    </div>
+
+<%}
+}
+%>
+</div></div></div>
+</body>
+</html>
